@@ -52,7 +52,7 @@
             sh 'docker rm -f calculatortest 2>/dev/null'
         }
         failure {
-            mail to: "thomas.lepetit1990@gmail.com",
+            mail to: "oum.hanane@gmail.com",
             subject: "this pipeline failed.",
             body: "you're a failure."
         }
