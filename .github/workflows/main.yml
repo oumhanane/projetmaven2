@@ -16,12 +16,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-   # - name: Set up JDK 17
-   #   uses: actions/setup-java@v4
-   #   with:
-   #     java-version: 17
-   #     distribution: 'temurin'
-
     - name: Compile the application
       run: mvn compile
 
@@ -29,23 +23,15 @@ jobs:
       run: mvn test
 
   package:
-    needs: build  # 🚀 Exécute ce job SEULEMENT après "build"
+    needs: build
     runs-on: self-hosted
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-   # - name: Set up JDK 17
-   #   uses: actions/setup-java@v4
-   #   with:
-   #     java-version: 17
-   #     distribution: 'temurin'
-
     - name: Package the application
       run: mvn package
-      env:
-       JAVA_HOME: ${{ steps.setup-java.outputs.java-home }} 
 
     - name: Upload JAR artifact
       uses: actions/upload-artifact@v4
@@ -54,7 +40,7 @@ jobs:
         path: target/*.jar
 
   docker:
-    needs: package  # 🚀 Exécute ce job SEULEMENT après "package"
+    needs: package
     runs-on: self-hosted
 
     steps:
@@ -82,9 +68,6 @@ jobs:
         docker tag my-spring-app:latest ${{ secrets.DOCKER_USERNAME }}/my-spring-app:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/my-spring-app:latest
 
-    - run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/my-spring-app:latest
-
     - name: Tag Docker image for local registry
       run: |
         docker tag my-spring-app:latest localhost:5000/my-spring-app:latest
@@ -92,3 +75,23 @@ jobs:
     - name: Push Docker image to local registry
       run: |
         docker push localhost:5000/my-spring-app:latest
+
+  deploy:
+    needs: docker
+    runs-on: self-hosted
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Minikube Docker environment
+      run: |
+        eval $(minikube docker-env)
+
+    - name: Load Docker image into Minikube
+      run: |
+        docker load < <(docker save my-spring-app:latest)
+
+    - name: Deploy to Minikube
+      run: |
+        kubectl apply -f deployment.yaml
