@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout code
@@ -30,7 +30,7 @@ jobs:
 
   package:
     needs: build  # 🚀 Exécute ce job SEULEMENT après "build"
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout code
@@ -55,7 +55,7 @@ jobs:
 
   docker:
     needs: package  # 🚀 Exécute ce job SEULEMENT après "package"
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
     - name: Checkout code
