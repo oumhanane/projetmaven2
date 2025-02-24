@@ -81,3 +81,14 @@ jobs:
       run: |
         docker tag my-spring-app:latest ${{ secrets.DOCKER_USERNAME }}/my-spring-app:latest
         docker push ${{ secrets.DOCKER_USERNAME }}/my-spring-app:latest
+
+    - run: |
+        docker push ${{ secrets.DOCKER_USERNAME }}/my-spring-app:latest
+
+    - name: Tag Docker image for local registry
+      run: |
+        docker tag my-spring-app:latest localhost:5000/my-spring-app:latest
+
+    - name: Push Docker image to local registry
+      run: |
+        docker push localhost:5000/my-spring-app:latest
